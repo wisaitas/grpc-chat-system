@@ -11,7 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -39,7 +38,7 @@ func (s *UserService) Register(ctx context.Context, req *userPb.RegisterRequest)
 
 	// Check if user already exists
 	existingUser, err := s.userRepo.GetUserByEmail(ctx, req.Email)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to check existing user")
 	}
 	if existingUser != nil && existingUser.Email != "" {
@@ -72,9 +71,51 @@ func (s *UserService) Register(ctx context.Context, req *userPb.RegisterRequest)
 }
 
 func (s *UserService) Login(ctx context.Context, req *userPb.LoginRequest) (*userPb.LoginResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "login not implemented yet")
+	// Validate input
+	if req.Email == "" {
+		return nil, status.Error(codes.InvalidArgument, "email is required")
+	}
+	if req.Password == "" {
+		return nil, status.Error(codes.InvalidArgument, "password is required")
+	}
+
+	// Get user by email
+	user, err := s.userRepo.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to get user")
+	}
+	if user == nil {
+		return nil, status.Error(codes.NotFound, "user not found")
+	}
+
+	// Check password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
+	}
+
+	// TODO: Generate JWT tokens
+	return &userPb.LoginResponse{
+		AccessToken:  "access_token_placeholder",
+		RefreshToken: "refresh_token_placeholder",
+	}, nil
 }
 
 func (s *UserService) ListUsers(ctx context.Context, req *userPb.Empty) (*userPb.ListUsersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "list users not implemented yet")
+	users, err := s.userRepo.ListUsers(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to list users")
+	}
+
+	pbUsers := make([]*userPb.User, len(users))
+	for i, user := range users {
+		pbUsers[i] = &userPb.User{
+			Id:        user.ID.String(),
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		}
+	}
+
+	return &userPb.ListUsersResponse{
+		Users: pbUsers,
+	}, nil
 }

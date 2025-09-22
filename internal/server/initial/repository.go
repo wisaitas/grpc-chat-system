@@ -17,7 +17,7 @@ func newRepository(
 	cfg *config,
 ) *repository {
 	return &repository{
-		userRepository: serverRepository.NewRepository(cfg.postgres),
+		userRepository: serverRepository.NewRepository(cfg.Postgres),
 	}
 }
 

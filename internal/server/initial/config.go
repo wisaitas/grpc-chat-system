@@ -3,17 +3,17 @@ package initial
 import (
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/wisaitas/grpc-chat-system/internal/server"
 	"github.com/wisaitas/grpc-chat-system/pkg/database"
-	"gorm.io/gorm"
 )
 
 type config struct {
-	postgres *gorm.DB
+	Postgres *pgxpool.Pool
 }
 
 func newConfig() *config {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Bangkok",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		server.Config.Postgres.Host,
 		server.Config.Postgres.User,
 		server.Config.Postgres.Password,
@@ -22,6 +22,6 @@ func newConfig() *config {
 	)
 
 	return &config{
-		postgres: database.NewPostgres(dsn),
+		Postgres: database.NewPostgres(dsn),
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/wisaitas/grpc-chat-system/internal/server"
 	middlewareConfig "github.com/wisaitas/grpc-chat-system/internal/server/middleware/config"
-	"github.com/wisaitas/grpc-chat-system/internal/server/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -24,10 +23,6 @@ type Server struct {
 
 func New() *Server {
 	cfg := newConfig()
-
-	if err := cfg.postgres.AutoMigrate(&model.User{}); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
-	}
 
 	repositories := newRepository(cfg)
 	services := newServices(repositories)
@@ -53,6 +48,8 @@ func New() *Server {
 }
 
 func (s *Server) GracefulStop() {
+	s.Config.Postgres.Close()
+
 	s.GrpcServer.GracefulStop()
 
 	log.Println("gRPC server stopped")
