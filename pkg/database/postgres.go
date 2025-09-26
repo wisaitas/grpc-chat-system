@@ -9,36 +9,33 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewPostgres(dsn string) *pgxpool.Pool {
+func NewPostgres(dsn string) (*pgxpool.Pool, error) {
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		panic(fmt.Sprintf("failed to parse database config: %v", err))
+		return nil, fmt.Errorf("failed to parse database config: %v", err)
 	}
 
-	// Connection pool configuration
 	config.MaxConns = 100
 	config.MinConns = 10
 	config.MaxConnLifetime = time.Hour
 	config.MaxConnIdleTime = 30 * time.Minute
 	config.HealthCheckPeriod = 1 * time.Minute
 
-	// Connection configuration for better performance
 	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create connection pool: %v", err))
+		return nil, fmt.Errorf("failed to create connection pool: %v", err)
 	}
 
-	// Test connection
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := pool.Ping(ctx); err != nil {
-		panic(fmt.Sprintf("failed to ping database: %v", err))
+		return nil, fmt.Errorf("failed to ping database: %v", err)
 	}
 
-	return pool
+	return pool, nil
 }
 
 // package database

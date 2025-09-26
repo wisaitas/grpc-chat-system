@@ -11,10 +11,10 @@ type handler struct {
 
 func newHandler(
 	grpcServer *grpc.Server,
-	services *services,
+	services *service,
 ) {
 	handler := &handler{
-		userHandler: serverHandler.NewUserHandler(grpcServer, services.userService),
+		userHandler: serverHandler.NewUserHandler(grpcServer, services.UserService),
 	}
 
 	handler.Register()

@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS tbl_users;
+DROP EXTENSION IF EXISTS "uuid-ossp";

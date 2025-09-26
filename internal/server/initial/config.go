@@ -2,6 +2,7 @@ package initial
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/wisaitas/grpc-chat-system/internal/server"
@@ -9,7 +10,7 @@ import (
 )
 
 type config struct {
-	Postgres *pgxpool.Pool
+	DB *pgxpool.Pool
 }
 
 func newConfig() *config {
@@ -21,7 +22,12 @@ func newConfig() *config {
 		server.Config.Postgres.Port,
 	)
 
+	dbClient, err := database.NewPostgres(dsn)
+	if err != nil {
+		log.Fatalf("failed to create database connection: %v", err)
+	}
+
 	return &config{
-		Postgres: database.NewPostgres(dsn),
+		DB: dbClient,
 	}
 }
