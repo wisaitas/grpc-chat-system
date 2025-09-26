@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,8 +38,8 @@ func (s *UserService) Register(ctx context.Context, req *userPb.RegisterRequest)
 	}
 
 	existingUser, err := s.Queries.GetUserByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to check existing user")
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	if existingUser != nil && existingUser.Email != "" {
 		return nil, status.Error(codes.AlreadyExists, "user already exists with this email")
