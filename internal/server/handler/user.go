@@ -1,30 +1,25 @@
 package handler
 
 import (
-	userPb "github.com/wisaitas/grpc-chat-system/internal/server/protogen/user"
-	"github.com/wisaitas/grpc-chat-system/internal/server/service"
 	"google.golang.org/grpc"
 )
 
 type UserHandler interface {
+	Login()
 	Register()
 }
 
 type userHandler struct {
-	grpcServer  *grpc.Server
-	userService *service.UserService
+	grpcServer *grpc.Server
+	// userService service.AuthService
 }
 
 func NewUserHandler(
 	grpcServer *grpc.Server,
-	userService *service.UserService,
+	// userService service.AuthService,
 ) *userHandler {
 	return &userHandler{
-		grpcServer:  grpcServer,
-		userService: userService,
+		grpcServer: grpcServer,
+		// userService: userService,
 	}
-}
-
-func (h *userHandler) Register() {
-	userPb.RegisterUserServiceServer(h.grpcServer, h.userService)
 }

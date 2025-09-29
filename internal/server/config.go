@@ -11,4 +11,8 @@ var Config struct {
 		Host     string `env:"HOST" envDefault:"localhost"`
 		Port     string `env:"PORT" envDefault:"5432"`
 	} `envprefix:"POSTGRES_"`
+	Cassandra struct {
+		Host string `env:"HOST" envDefault:"localhost"`
+		Port string `env:"PORT" envDefault:"9042"`
+	} `envprefix:"CASSANDRA_"`
 }

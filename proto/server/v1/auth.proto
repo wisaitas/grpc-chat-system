@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package user;
+package auth;
 
-option go_package = "internal/server/protogen/user";
+option go_package = "internal/server/protogen/auth";
 
 message RegisterRequest {
   string email = 1;
@@ -25,20 +25,7 @@ message LoginResponse {
   string refresh_token = 2;
 }
 
-message Empty {}
-
-message User {
-  string id = 1;
-  string email = 2;
-  string created_at = 3; // RFC3339
-}
-
-message ListUsersResponse {
-  repeated User users = 1;
-}
-
-service UserService {
+service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
-  rpc ListUsers(Empty) returns (ListUsersResponse);
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/wisaitas/grpc-chat-system/internal/server"
 	middlewareConfig "github.com/wisaitas/grpc-chat-system/internal/server/middleware/config"
-	db "github.com/wisaitas/grpc-chat-system/internal/server/sqlc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -23,10 +22,9 @@ type Server struct {
 }
 
 func New() *Server {
-	cfg := newConfig()
+	config := newConfig()
 
-	queries := db.New(cfg.DB)
-	services := newService(queries)
+	services := newService(config)
 
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -44,12 +42,13 @@ func New() *Server {
 
 	return &Server{
 		GrpcServer: grpcServer,
-		Config:     cfg,
+		Config:     config,
 	}
 }
 
 func (s *Server) GracefulStop() {
-	s.Config.DB.Close()
+	s.Config.Postgres.Close()
+	s.Config.Cassandra.Close()
 
 	s.GrpcServer.GracefulStop()
 

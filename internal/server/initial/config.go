@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"log"
 
+	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/wisaitas/grpc-chat-system/internal/server"
 	"github.com/wisaitas/grpc-chat-system/pkg/database"
 )
 
 type config struct {
-	DB *pgxpool.Pool
+	Postgres  *pgxpool.Pool
+	Cassandra *gocql.Session
 }
 
 func newConfig() *config {
@@ -27,7 +29,13 @@ func newConfig() *config {
 		log.Fatalf("failed to create database connection: %v", err)
 	}
 
+	cassandraClient, err := database.NewCassandra(server.Config.Cassandra.Host, server.Config.Cassandra.Port)
+	if err != nil {
+		log.Fatalf("failed to create cassandra connection: %v", err)
+	}
+
 	return &config{
-		DB: dbClient,
+		Postgres:  dbClient,
+		Cassandra: cassandraClient,
 	}
 }

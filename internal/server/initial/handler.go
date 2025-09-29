@@ -6,7 +6,7 @@ import (
 )
 
 type handler struct {
-	userHandler serverHandler.UserHandler
+	authHandler serverHandler.AuthHandler
 }
 
 func newHandler(
@@ -14,12 +14,13 @@ func newHandler(
 	services *service,
 ) {
 	handler := &handler{
-		userHandler: serverHandler.NewUserHandler(grpcServer, services.UserService),
+		authHandler: serverHandler.NewAuthHandler(grpcServer, services.AuthService),
 	}
 
-	handler.Register()
+	handler.register()
 }
 
-func (h *handler) Register() {
-	h.userHandler.Register()
+func (h *handler) register() {
+	h.authHandler.Register()
+	h.authHandler.Login()
 }

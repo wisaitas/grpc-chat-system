@@ -1,18 +1,20 @@
 package initial
 
 import (
+	authPb "github.com/wisaitas/grpc-chat-system/internal/server/protogen/auth"
 	serverService "github.com/wisaitas/grpc-chat-system/internal/server/service"
 	db "github.com/wisaitas/grpc-chat-system/internal/server/sqlc"
 )
 
 type service struct {
-	UserService *serverService.UserService
+	AuthService authPb.AuthServiceServer
 }
 
 func newService(
-	queries *db.Queries,
+	config *config,
 ) *service {
+	queries := db.New(config.Postgres)
 	return &service{
-		UserService: serverService.NewUserService(queries),
+		AuthService: serverService.NewAuthService(queries),
 	}
 }
